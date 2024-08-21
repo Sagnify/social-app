@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-avufr#lmhc*%wof2(=g1)ss9w_(ubke%$q9pnfn+azkmxwv+k!
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['192.168.0.105', 'localhost', '127.0.0.1']  # Replace with your IP
+ALLOWED_HOSTS = ['.vercel.app']  # Replace with your IP
 
 
 # Application definition
@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'authentication',
     'accounts',
     'chat',
+    'pwa',
 ]
 
 # AUTHENTICATION_BACKENDS = [
@@ -149,3 +150,32 @@ FIREBASE_STORAGE_BUCKET = 'social-app-50633.appspot.com'
 FIREBASE_MESSAGING_SENDER_ID = '922577561093'
 FIREBASE_APP_ID = '1:922577561093:web:9314a188f28ab824ff5e6c'
 
+PWA_APP_NAME = 'Social App'
+PWA_APP_DESCRIPTION = "Being Social"
+PWA_APP_THEME_COLOR = '#0A0302'
+PWA_APP_BACKGROUND_COLOR = '#ffffff'
+PWA_APP_DISPLAY = 'standalone'
+PWA_APP_SCOPE = '/'
+PWA_APP_ORIENTATION = 'any'
+PWA_APP_START_URL = '/'
+PWA_APP_STATUS_BAR_COLOR = 'default'
+PWA_APP_ICONS = [
+    {
+        'src': '/static/images/logo.png',
+        'sizes': '160x160'
+    }
+]
+PWA_APP_ICONS_APPLE = [
+    {
+        'src': '/static/images/logo.png',
+        'sizes': '160x160'
+    }
+]
+PWA_APP_SPLASH_SCREEN = [
+    {
+        'src': '/static/images/logo.png',
+        'media': '(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2)'
+    }
+]
+PWA_APP_DIR = 'ltr'
+PWA_APP_LANG = 'en-US'

@@ -16,7 +16,7 @@ Including another URLconf
 """
 from django.conf import settings
 from django.contrib import admin
-from django.urls import path
+from django.urls import include, path
 from django.conf.urls.static import static
 from home.views import *
 from authentication.views import *
@@ -51,7 +51,7 @@ urlpatterns = [
     path('update-profile-picture/', update_profile_picture, name='update_profile_picture'),
     path('p/@<str:username>/edit/', edit_profile, name='edit_profile'),
     path('hashtags/<str:tagname>/', hashtags, name='hashtag'),
-
+    path('', include('pwa.urls')),
     path('admin/', admin.site.urls),
 ]
 
