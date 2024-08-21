@@ -1,0 +1,280 @@
+{% extends 'base.html' %}
+{% block start %}
+
+
+
+{% if post %}
+
+
+
+<div class="space-y-6">
+    <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow mb-2">
+        <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center space-x-2">
+                <img src="{{ post.user_pic|default:'https://via.placeholder.com/150' }}" alt="User" class="rounded-full" style="width: 25px;">
+                <div class="flex flex-row items-center space-x-2">
+                    <a href="{% url 'profile' post.user.username %}">
+                        <h4 class="font-semibold">@{{ post.user.username }}</h4>
+                    </a>
+                    <div class="flex items-center text-sm text-gray-500">
+                        <span class="bullet mx-1">•</span>
+                        <p id="post-date-{{ post.id }}" data-created-at="{{ post.created_at|date:'c' }}"></p>
+                    </div>
+                </div>
+            </div>
+            <button class="text-gray-400 hover:text-gray-600">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 12h12M6 6h12M6 18h12"/>
+                </svg>
+            </button>
+        </div>
+        
+<div class="relative w-full flex items-center justify-start p-5">
+    <p class="text-left font-bold text-lg drop-shadow-md overflow-hidden select-none" data-caption="{{ post.caption }}">
+        <span id="post_content" class="line-clamp-3">
+            {% for word in post.caption.split %}
+                {% if word|slice:"0:1" == '@' %}
+                    {% with username=word|slice:"1:" %}
+                        <a href="{% url 'profile' username=username %}" class="text-blue-500 hover:text-blue-700 underline cursor-pointer">@{{ username }}</a>
+                    {% endwith %}
+                {% elif word|slice:"0:1" == '#' %}
+                    {% with tagname=word|slice:"1:" %}
+                        <a href="{% url 'hashtag' tagname=tagname %}" class="text-blue-500 hover:text-blue-700 underline cursor-pointer">#{{ tagname }}</a>
+                    {% endwith %}
+                {% else %}
+                    {{ word }}
+                {% endif %}
+            {% endfor %}
+        </span>
+        
+    </p>
+</div>
+                    <!-- Enhanced Image Carousel -->
+                    <div class="relative mt-4">
+                        {% if post.images.count > 1 %}
+                        <button class="absolute top-1/2 left-2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-75 z-10" data-carousel-prev="{{ post.id }}">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                            </svg>
+                        </button>
+                        <button class="absolute top-1/2 right-2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-75 z-10" data-carousel-next="{{ post.id }}">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                            </svg>
+                        </button>
+                        {% endif %}
+    
+                        <div class="overflow-hidden">
+                            <div class="flex transition-transform duration-500 ease-in-out" data-carousel="{{ post.id }}">
+                                {% for image in post.images.all %}
+                                <div class="w-full flex-shrink-0">
+                                    <div class="relative pb-[100%]">
+                                        <img src="{{ image.signed_url }}" alt="Post Image" class="absolute inset-0 w-full h-full object-cover" onerror="this.style.display='none';">
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <!-- Dots Indicator -->
+                        <div class="flex justify-center mt-2">
+                            {% for image in post.images.all %}
+                            <div class="w-2 h-2 bg-gray-400 rounded-full mx-1 {{ forloop.first|yesno:'bg-gray-800, ' }}" data-carousel-dot="{{ post.id }}"></div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <hr class="border-gray-300 dark:border-gray-700 my-4">
+        
+
+
+        <!-- Like, Share, and Save buttons -->
+        <div class="flex items-center justify-between mt-4">
+            <div class="flex items-center space-x-4">
+                <button class="like-button flex items-center space-x-2 {% if post.is_liked %}text-red-600{% else %}text-gray-600 dark:text-gray-200{% endif %} hover:text-gray-900 " data-post-id="{{ post.post_id }}">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="{% if post.is_liked %}currentColor{% else %}none{% endif %}" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                    </svg>
+                    <span class="like-count pr-1">{{ post.like_set.count }}</span>Like
+                </button>
+                <button onclick="openCommentModal('{{ post.id }}')" class="flex items-center space-x-2 text-gray-600 dark:text-gray-200 hover:text-indigo-500 transition">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                    </svg>
+                    <span>Comment</span>
+                </button>
+            </div>
+            <button class="save-button flex items-center space-x-2 {% if post.is_saved %}text-indigo-600{% else %}text-gray-600 dark:text-gray-200{% endif %} hover:text-gray-900" data-post-id="{{ post.post_id }}">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="{% if post.is_saved %}currentColor{% else %}none{% endif %}" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+                </svg>
+                <span class="save-count pr-1">{{ post.save_set.count }}</span>Save
+            </button>
+        </div>
+        
+        <!-- Comments Section -->
+        {% include 'comment_section.html' %}
+    </div>
+</div>
+
+
+
+ 
+ {% else %}
+    <p>No posts found.</p>
+{% endif %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function() {
+        console.log("Document is ready!");
+    
+        $('.like-button').click(function(e) {
+            e.preventDefault();
+            console.log("Like button clicked!");
+    
+            var button = $(this);
+            var postId = button.data('post-id');
+            console.log("Post ID:", postId);
+    
+            $.ajax({
+                url: '{% url "like_post" %}',
+                type: 'POST',
+                data: {
+                    'post_id': postId,
+                    'csrfmiddlewaretoken': '{{ csrf_token }}'
+                },
+                success: function(response) {
+                    console.log("AJAX request successful!");
+                    console.log("Response:", response);
+    
+                    var likeCount = button.find('.like-count');
+                    likeCount.text(response.total_likes);
+    
+                    if (response.liked) {
+                        button.find('svg').attr('fill', 'currentColor');
+                        button.addClass('text-red-600').removeClass('text-gray-600');
+                        console.log("Post liked!");
+                    } else {
+                        button.find('svg').attr('fill', 'none');
+                        button.addClass('text-gray-600').removeClass('text-red-600');
+                        console.log("Post unliked!");
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error("AJAX request failed!");
+                    console.error("Status:", status);
+                    console.error("Error:", error);
+                }
+            });
+        });
+    
+        $('.save-button').click(function(e) {
+            e.preventDefault();
+            console.log("Save button clicked!");
+    
+            var button = $(this);
+            var postId = button.data('post-id');
+            console.log("Post ID:", postId);
+    
+            $.ajax({
+                url: '{% url "save_post" %}',
+                type: 'POST',
+                data: {
+                    'post_id': postId,
+                    'csrfmiddlewaretoken': '{{ csrf_token }}'
+                },
+                success: function(response) {
+                    console.log("AJAX request successful!");
+                    console.log("Response:", response);
+    
+                    var saveCount = button.find('.save-count');
+                    saveCount.text(response.total_saves);
+    
+                    if (response.saved) {
+                        button.find('svg').attr('fill', 'currentColor');
+                        button.addClass('text-indigo-600').removeClass('text-gray-600');
+                        console.log("Post saved!");
+                    } else {
+                        button.find('svg').attr('fill', 'none');
+                        button.addClass('text-gray-600').removeClass('text-indigo-600');
+                        console.log("Post unsaved!");
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error("AJAX request failed!");
+                    console.error("Status:", status);
+                    console.error("Error:", error);
+                }
+            });
+        });
+    });
+    </script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const postDateElements = document.querySelectorAll('[id^="post-date-"]');
+        
+        postDateElements.forEach(function(element) {
+            const createdAt = new Date(element.dataset.createdAt);
+            element.textContent = timeAgo(createdAt);
+        });
+
+        function timeAgo(date) {
+            const now = new Date();
+            const secondsPast = (now.getTime() - date.getTime()) / 1000;
+
+            if (secondsPast < 60) {
+                return 'just now';
+            }
+            if (secondsPast < 3600) {
+                return Math.floor(secondsPast / 60) + 'min ago';
+            }
+            if (secondsPast <= 86400) {
+                return Math.floor(secondsPast / 3600) + 'hr ago';
+            }
+            if (secondsPast <= 2592000) { // within a month
+                return Math.floor(secondsPast / 86400) + 'd ago';
+            }
+            if (secondsPast <= 31104000) { // within a year
+                return Math.floor(secondsPast / 2592000) + 'm ago';
+            }
+            return Math.floor(secondsPast / 31104000) + 'yr ago';
+        }
+    });
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const carousels = document.querySelectorAll('[data-carousel]');
+        
+        carousels.forEach(carousel => {
+            const postId = carousel.dataset.carousel;
+            const prevBtn = document.querySelector(`[data-carousel-prev="${postId}"]`);
+            const nextBtn = document.querySelector(`[data-carousel-next="${postId}"]`);
+            const slides = carousel.children;
+            let currentIndex = 0;
+    
+            function showSlide(index) {
+                carousel.style.transform = `translateX(-${index * 100}%)`;
+            }
+    
+            if (prevBtn) {
+                prevBtn.addEventListener('click', () => {
+                    currentIndex = (currentIndex - 1 + slides.length) % slides.length;
+                    showSlide(currentIndex);
+                });
+            }
+    
+            if (nextBtn) {
+                nextBtn.addEventListener('click', () => {
+                    currentIndex = (currentIndex + 1) % slides.length;
+                    showSlide(currentIndex);
+                });
+            }
+        });
+    });
+    
+    </script>
+        
+
+
+ {% endblock %}
+
+ 

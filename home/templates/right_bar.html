@@ -1,0 +1,135 @@
+<div id="rightSidebar" class="fixed top-[15%] right-0 w-1/5 h-4/5 bg-white dark:bg-gray-800 p-4 border-l border-gray-200 dark:border-gray-600 {% if request.path != '/explore/' %}lg:block{% endif %} hidden rounded-l-2xl">
+    <div class="mb-6">
+        <h2 class="text-xl font-semibold mb-4">People You Follow</h2>
+        <div class="space-y-4" id="following-users-list">
+            {% for user in following_users|slice:":3" %}
+            <div class="flex items-center space-x-4 user-item">
+                <img src="{{ user.profile_pic |default:'https://via.placeholder.com/150' }}" alt="{{ user.username }}" class="rounded-full w-10 h-10">
+                <div>
+                    <h3 class="font-semibold"><a href="{% url 'profile' username=user.username %}">{{ user.username }}</a></h3>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% if following_users|length > 3 %}
+        <button class="mt-4 text-blue-600" id="show-more-btn">Show more</button>
+        {% endif %}
+        <button class="mt-4 text-blue-600" id="show-all-btn">Show All</button>
+    </div>
+
+    <!-- List of Recommended People -->
+    <div>
+        <h2 class="text-xl font-semibold mb-4">Recommended People</h2>
+        <div class="space-y-4">
+        {% if recommended_profiles %}
+            {% for user in recommended_profiles %}
+            <div class="flex items-center space-x-4 user-item">
+                <img src="{{ user.profile_pic |default:'https://via.placeholder.com/150' }}" alt="{{ user.username }}" class="rounded-full w-10 h-10">
+                <div>
+                    <h3 class="font-semibold"><a href="{% url 'profile' username=user.username %}">{{ user.username }}</a></h3>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% if recommended_profiles|length > 5 %}
+        <button class="mt-4 text-blue-600" id="show-more-recommended-btn">Show more</button>
+        {% endif %}
+        {% else %}
+        <p class="text-gray-300 dark:text-gray-500">No recommendations available</p>
+        {% endif %}
+    </div>
+</div>
+</div>
+
+
+<!-- Modal Structure -->
+<div id="following-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center">
+    <div class="bg-white dark:bg-gray-800 dark:text-gray-200 p-6 rounded-lg w-[25%] h-3/4 overflow-y-auto">
+        <button id="close-modal-btn" class="text-gray-600 hover:text-gray-900 float-right">✕</button>
+        <h2 class="text-xl font-semibold mb-4">All Users You Follow</h2>
+        <input type="text" id="search-bar" class="mb-4 p-2 border rounded w-full bg-white dark:bg-gray-700 text-black dark:text-white placeholder-gray-400 dark:placeholder-gray-500" placeholder="Search users...">
+        <div class="space-y-4" id="all-following-users-list">
+            {% for user in following_users %}
+            <div class="flex items-center space-x-4 user-item-modal">
+                <img src="{{ user.profile_pic |default:'https://via.placeholder.com/150' }}" alt="{{ user.username }}" class="rounded-full w-10 h-10">
+                <div>
+                    <h3 class="font-semibold"><a href="{% url 'profile' username=user.username %}">{{ user.username }}</a></h3>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const showMoreBtn = document.getElementById('show-more-btn');
+    const showAllBtn = document.getElementById('show-all-btn');
+    const showMoreRecommendedBtn = document.getElementById('show-more-recommended-btn');
+    const closeModalBtn = document.getElementById('close-modal-btn');
+    const modal = document.getElementById('following-modal');
+    const userItems = Array.from(document.querySelectorAll('.user-item'));
+    const recommendedUserItems = Array.from(document.querySelectorAll('.user-item'));
+    const searchBar = document.getElementById('search-bar');
+    const userItemsModal = Array.from(document.querySelectorAll('.user-item-modal'));
+    let currentIndex = 3;
+
+    if (showMoreBtn) {
+        showMoreBtn.addEventListener('click', function() {
+            for (let i = currentIndex; i < currentIndex + 3 && i < userItems.length; i++) {
+                userItems[i].style.display = 'flex';
+            }
+            currentIndex += 3;
+            if (currentIndex >= userItems.length) {
+                showMoreBtn.style.display = 'none';
+            }
+        });
+    }
+
+    if (showMoreRecommendedBtn) {
+        showMoreRecommendedBtn.addEventListener('click', function() {
+            for (let i = currentIndex; i < currentIndex + 3 && i < recommendedUserItems.length; i++) {
+                recommendedUserItems[i].style.display = 'flex';
+            }
+            currentIndex += 3;
+            if (currentIndex >= recommendedUserItems.length) {
+                showMoreRecommendedBtn.style.display = 'none';
+            }
+        });
+    }
+
+    showAllBtn.addEventListener('click', function() {
+        modal.classList.remove('hidden');
+    });
+
+    closeModalBtn.addEventListener('click', function() {
+        modal.classList.add('hidden');
+    });
+
+    searchBar.addEventListener('input', function() {
+        const searchValue = searchBar.value.toLowerCase();
+        userItemsModal.forEach(function(item) {
+            const username = item.querySelector('h3').textContent.toLowerCase();
+            if (username.includes(searchValue)) {
+                item.style.display = 'flex';
+            } else {
+                item.style.display = 'none';
+            }
+        });
+    });
+
+    // Initially hide all user items except the first 3
+    userItems.forEach((item, index) => {
+        if (index >= 3) {
+            item.style.display = 'none';
+        }
+    });
+    
+    // Initially hide all recommended user items except the first 5
+    recommendedUserItems.forEach((item, index) => {
+        if (index >= 5) {
+            item.style.display = 'none';
+        }
+    });
+});
+</script>

@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login and Welcome Page</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href='https://fonts.googleapis.com/css?family=Alex Brush' rel='stylesheet'>
+    <style>
+        body {
+            /* background: linear-gradient(135deg, #f7f3ea, #e3d8c0); */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            /* font-family: 'Courier New', monospace; */
+            transition: background-color 1s ease-out, opacity 1s ease-out;
+        }
+        .all-transition {
+             transition: background-color 1s ease-in-out;
+        }
+        .fade-out {
+            opacity: 0;
+            background: transparent;
+        }
+        .typewriter {
+            position: relative;
+            height: 3.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .typewriter h2 {
+            display: inline-block;
+            overflow: hidden;
+            white-space: nowrap;
+            margin: 0;
+            letter-spacing: .05em;
+            font-size: 1.875rem;
+            font-weight: 800;
+        }
+        .cursor {
+            display: inline-block;
+            width: 3px;
+            height: 100%;
+            background-color: #6366F1;
+            animation: blink 0.7s infinite;
+            margin-left: 2px;
+            vertical-align: text-top;
+        }
+        @keyframes blink {
+            0% { opacity: 0; }
+            50% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+        #welcome-container {
+            display: none;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: flex-start;
+            max-width: 600px;
+            width: 90%;
+            opacity: 0;
+            transition: opacity 1s ease-in;
+            background-color: #f5e8d3;
+            padding: 2rem;
+            font-family: 'Courier New', monospace;
+            color: #5d4037;
+            margin: auto;
+            overflow-y: auto;
+            max-height: 40vh;
+            transition: opacity 1s ease-in;
+            /* box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); */
+        }
+        #welcome-message {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            align-self: flex-start;
+        }
+        .welcome-line {
+            font-size: 1.2rem;
+            opacity: 0.8;
+            margin-bottom: 0.5rem;
+            text-align: left;
+        }
+        #login-form {
+            transition: opacity 1s ease-out;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-indigo-100 via-purple-100 to-pink-100 flex flex-col justify-center min-h-screen py-12 px-4 sm:px-6 lg:px-8 all-transition">
+    <div id="login-form" class="max-w-md w-full mx-auto bg-white py-12 px-8 shadow-2xl rounded-3xl sm:px-12">
+        <div class="typewriter text-center mb-8">
+            <h2 id="typewriter-text" class="font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-purple-600"></h2><span class="cursor"></span>
+        </div>
+        <div class="w-full mb-8 bg-red-300 rounded-md p-4 hidden" id="error-message">{{error_message}}</div>
+        <form action="#" method="POST" class="space-y-8" onsubmit="return handleLogin(event)" >
+            {% csrf_token %}
+            <div>
+                <label for="username" class="block text-sm font-medium text-gray-700">Username</label>
+                <input type="text" id="username-input" name="username" placeholder="Enter your username" class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-200">
+            </div>
+            <div>
+                <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+                <div class="relative">
+                    <input type="password" id="password" name="password" placeholder="Enter your password" class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 focus:ring-opacity-50 transition duration-200">
+                    <button type="button" id="togglePassword" class="absolute inset-y-0 right-0 flex items-center px-3 text-gray-500 hover:text-gray-700">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" id="eye-icon" class="w-4 h-4"><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM144 256a144 144 0 1 1 288 0 144 144 0 1 1 -288 0zm144-64c0 35.3-28.7 64-64 64c-7.1 0-13.9-1.2-20.3-3.3c-5.5-1.8-11.9 1.6-11.7 7.4c.3 6.9 1.3 13.8 3.2 20.7c13.7 51.2 66.4 81.6 117.6 67.9s81.6-66.4 67.9-117.6c-11.1-41.5-47.8-69.4-88.6-71.1c-5.8-.2-9.2 6.1-7.4 11.7c2.1 6.4 3.3 13.2 3.3 20.3z"/></svg>
+                    </button>
+                </div>
+            </div>
+            <div>
+                <button type="submit" class="w-full flex justify-center py-3 px-6 border border-transparent rounded-lg shadow-lg text-sm font-medium text-white bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out transform hover:scale-105">
+                    Log In
+                </button>
+            </div>
+        </form>
+        <div class="mt-8 text-center">
+            <a href="#" class="text-sm text-indigo-600 hover:text-indigo-700">Forgot password?</a>
+        </div>
+        <div class="mt-4 text-center">
+            <span class="text-sm text-gray-600">Don't have an account? </span><a href="/register/" class="text-sm text-indigo-600 hover:text-indigo-700">Sign up</a>
+        </div>
+    </div>
+
+    <div id="welcome-container" style= "overflow: hidden;" >
+        <div id="welcome-message"></div>
+        <div id="welcome-lines"></div>
+    </div>
+
+    <script>
+        const phrases = ["Welcome Back", "Connect with Friends", "Share Your Story"];
+        let currentPhraseIndex = 0;
+        let isDeleting = false;
+        let text = '';
+        let typingSpeed = 100;
+        let deletingSpeed = 50;
+
+        function adjustFontSize() {
+            const container = document.querySelector('.typewriter');
+            const textElement = document.getElementById('typewriter-text');
+            const computedStyle = window.getComputedStyle(container);
+            const containerWidth = parseInt(computedStyle.width, 10);
+            
+            let fontSize = 48;
+            textElement.style.fontSize = `${fontSize}px`;
+
+            while (textElement.offsetWidth > containerWidth - 20 && fontSize > 12) {
+                fontSize--;
+                textElement.style.fontSize = `${fontSize}px`;
+            }
+        }
+
+        function typeWriter() {
+            const currentPhrase = phrases[currentPhraseIndex];
+            
+            if (isDeleting) {
+                text = currentPhrase.substring(0, text.length - 1);
+            } else {
+                text = currentPhrase.substring(0, text.length + 1);
+            }
+
+            document.getElementById('typewriter-text').textContent = text;
+            adjustFontSize();
+
+            let typingDelay = isDeleting ? deletingSpeed : typingSpeed;
+
+            if (!isDeleting && text === currentPhrase) {
+                typingDelay = 1500;
+                isDeleting = true;
+            } else if (isDeleting && text === '') {
+                isDeleting = false;
+                currentPhraseIndex = (currentPhraseIndex + 1) % phrases.length;
+                typingDelay = 500;
+            }
+
+            setTimeout(typeWriter, typingDelay);
+        }
+
+        document.addEventListener('DOMContentLoaded', typeWriter);
+        window.addEventListener('resize', adjustFontSize);
+
+        document.getElementById('togglePassword').addEventListener('click', function() {
+            const passwordField = document.getElementById('password');
+            const eyeIcon = document.getElementById('eye-icon');
+            
+            if (passwordField.type === 'password') {
+                passwordField.type = 'text';
+                eyeIcon.setAttribute('viewBox', '0 0 640 512');
+                eyeIcon.innerHTML = '<path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c8.4-19.3 10.6-41.4 4.8-63.3c-11.1-41.5-47.8-69.4-88.6-71.1c-5.8-.2-9.2 6.1-7.4 11.7c2.1 6.4 3.3 13.2 3.3 20.3c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zM373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5L373 389.9z"/>';
+            } else {
+                passwordField.type = 'password';
+                eyeIcon.setAttribute('viewBox', '0 0 576 512');
+                eyeIcon.innerHTML = '<path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM144 256a144 144 0 1 1 288 0 144 144 0 1 1 -288 0zm144-64c0 35.3-28.7 64-64 64c-7.1 0-13.9-1.2-20.3-3.3c-5.5-1.8-11.9 1.6-11.7 7.4c.3 6.9 1.3 13.8 3.2 20.7c13.7 51.2 66.4 81.6 117.6 67.9s81.6-66.4 67.9-117.6c-11.1-41.5-47.8-69.4-88.6-71.1c-5.8-.2-9.2 6.1-7.4 11.7c2.1 6.4 3.3 13.2 3.3 20.3z"/>'
+            }
+        });
+
+        function handleLogin(event) {
+            event.preventDefault();
+
+            const form = event.target;
+            const formData = new FormData(form);
+
+            fetch(form.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest', // Indicates it's an AJAX request
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    // Handle success, e.g., redirect or show success message
+                    // window.location.href = '/';
+                    fadeOutLoginForm();
+                    setTimeout(showWelcomeMessage, 1000);
+                } else {
+                    // Handle error, e.g., show error message
+                    const errorElement = document.getElementById('error-message');
+                    if (errorElement) {
+                        errorElement.classList.remove('hidden')
+                        errorElement.textContent = data.message;
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+
+
+        function fadeOutLoginForm() {
+            const loginForm = document.getElementById('login-form');
+            loginForm.style.opacity = '0';
+            document.body.style.transition = 'background-color 1s ease-in-out';
+            document.body.style.backgroundColor = '#f5e8d3';
+            document.body.classList.remove('bg-gradient-to-br', 'from-indigo-100', 'via-purple-100', 'to-pink-100');
+        }
+
+        function scrollToBottom() {
+            const Container = document.getElementById('welcome-container');
+            Container.scrollTo({
+                top: Container.scrollHeight,
+                behavior: 'smooth'
+            });
+        }
+
+        function showWelcomeMessage() {
+        document.body.style.backgroundColor = '#f5e8d3';
+        const loginForm = document.getElementById('login-form');
+        const welcomeContainer = document.getElementById('welcome-container');
+        
+        setTimeout(() => {
+            loginForm.style.display = 'none';
+            welcomeContainer.style.display = 'flex';
+            welcomeContainer.style.opacity = '0';
+            
+            setTimeout(() => {
+                welcomeContainer.style.transition = 'opacity 1s ease-in-out';
+                welcomeContainer.style.opacity = '1';
+                
+                // Start typewriter effect after fade-in is complete
+                setTimeout(startTypewriterEffect, 1000);
+            }, 50);
+        }, 1000); // Wait for fade-out to complete
+    }
+
+    function startTypewriterEffect() {
+        const welcomeLines = [
+            "Initializing system...",
+            "Connecting to servers...",
+            "Authenticating user credentials...",
+            "Getting your details...",
+            "Searching for recent posts...",
+            "Analyzing your preferences...",
+            "Updating your network connections...",
+            "Optimizing your feed algorithm...",
+            "Loading personalized content...",
+            "Setting up your feeds...",
+            "Preparing your dashboard...",
+            "Checking for new messages...",
+            "Syncing your calendar...",
+            "Updating privacy settings...",
+            "Analyzing trending topics...",
+            "Customizing your experience...",
+            "Generating content recommendations...",
+            "Updating notification preferences...",
+            "Optimizing performance...",
+            "Finalizing setup...",
+            "Redirecting to your feeds..."
+        ];
+
+        let lineIndex = 0;
+        let charIndex = 0;
+
+        function typeLine() {
+            if (lineIndex < welcomeLines.length) {
+                const line = welcomeLines[lineIndex];
+                const element = document.createElement('div');
+                element.classList.add('welcome-line');
+                document.getElementById('welcome-container').appendChild(element);
+
+                function typeChar() {
+                    if (charIndex < line.length) {
+                        element.textContent += line.charAt(charIndex);
+                        charIndex++;
+                        setTimeout(typeChar, 5); // Typing speed
+                    } else {
+                        charIndex = 0;
+                        lineIndex++;
+                        setTimeout(typeLine, 90); // Delay between lines
+                    }
+                    scrollToBottom();
+                }
+
+                typeChar();
+            } else {
+                setTimeout(() => {
+                    window.location.href = "/";
+                }, 2000);
+            }
+        }
+
+        typeLine();
+    }
+    </script>
+</body>

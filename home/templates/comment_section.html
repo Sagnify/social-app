@@ -1,0 +1,209 @@
+<div class="mt-4 space-y-4">
+    {% if post.random_comment %}
+        {% if post.random_comment.parent_id is None %}
+        <div class="flex items-start space-x-4">
+            <img src="{{ post.random_comment.user_pic |default:'https://via.placeholder.com/150' }}" alt="User" class="rounded-full w-[25px]">
+            <div class="bg-gray-100 dark:bg-gray-700 p-3 rounded-lg w-full">
+                <div class="flex items-center justify-between mb-2">
+                    <h3 class="font-semibold">{{ post.random_comment.user.username }}</h3>
+                    <div class="relative">
+                        <button class="text-gray-400 hover:text-gray-600" onclick="toggleDropdown('dropdown-{{ post.random_comment.id }}')">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z" />
+                            </svg>
+                        </button>
+                        <div id="dropdown-{{ post.random_comment.id }}" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10">
+                            <a href="#" class="block px-4 py-2 text-gray-800 hover:bg-gray-200" onclick="setParentComment('{{ post.id }}', '{{ post.random_comment.id }}', '{{ post.random_comment.user.username }}', '{{ post.random_comment.content|escapejs }}')">Reply</a>
+                        </div>
+                    </div>
+                </div>
+                <p class="text-sm">{{ post.random_comment.content }}</p>
+                {% if post.random_comment_reply %}
+                    <button onclick="toggleReply('{{ post.random_comment.id }}')" class="text-blue-500 hover:underline mt-2">Show Replies</button>
+                {% endif %}
+                <div class="overflow-hidden transition-max-height duration-300 ease-in-out max-h-0 pt-2" id="reply-container-{{ post.random_comment.id }}">
+                    {% if post.random_comment_reply %}
+                        <div class="flex items-center justify-between space-x-4">
+                            <div class="flex items-center space-x-4">
+                                <img src="{{ post.random_comment_reply.user_pic |default:'https://via.placeholder.com/150' }}" alt="User" class="rounded-full w-[20px]">
+                                <h3 class="font-semibold">{{ post.random_comment_reply.user.username }}</h3>
+                            </div>
+                            <button class="text-gray-400 hover:text-gray-600">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z" />
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="bg-gray-100 dark:bg-gray-700 p-3 rounded-lg w-full">
+                            <p class="text-sm">{{ post.random_comment_reply.content }}</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    {% else %}
+        <div class="flex items-start space-x-4 " id="commentSection-{{ post.id }}">
+            <!-- Placeholder for new comment -->
+        </div>
+    {% endif %}
+        
+    <div class="text-center">
+        <button onclick="openCommentModal('{{ post.id }}')" class="text-blue-500 hover:underline">See More Comments</button>
+    </div>
+
+    <div class="relative mt-4 comment-input">
+
+        <div id="parentCommentPreview-{{ post.id }}" class="hidden bg-gray-100 dark:bg-gray-700  p-2 rounded-lg relative mb-2 border-l-4 border-blue-500">
+            <div class="text-xs text-gray-500 dark:text-gray-100 mb-1">
+                Replying to <span class="font-bold" id="parentCommentUser-{{ post.id }}"></span>
+            </div>
+            <div class="flex">
+                <div class="flex-grow">
+                    <p class="text-sm text-gray-600 dark:text-gray-300" id="parentCommentContent-{{ post.id }}"></p>
+                </div>
+                <button type="button" class="text-gray-500 dark:text-gray-100 hover:text-gray-700 ml-2" onclick="clearParentComment('{{ post.id }}')">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+        
+        <div class="flex items-center">
+            <img src="{{ current_profile_picture_url|default:'https://via.placeholder.com/150' }}" alt="User" class="rounded-full flex-shrink-0 w-10 h-10 object-cover">
+            <form id="postCommentForm-{{ post.id }}" class="flex-1 ml-3" method="post" action="{% url 'comment_create' post.id %}">
+                {% csrf_token %}
+                <div class="bg-gray-100 dark:bg-gray-900 dark:text-gray-200 rounded-full flex items-center relative">
+                    <input type="text" name="content" class="w-full py-2 px-4 bg-transparent focus:outline-none pr-20" placeholder="Add a comment..." id="newComment-{{ post.id }}">
+                    <input type="hidden" name="parent_id" id="parentComment-{{ post.id }}" value="">
+                    <button class="absolute right-0 flex items-center justify-center w-10 h-10 rounded-full bg-blue-600 text-white hover:bg-blue-700 transition-colors duration-200" type="submit">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.707l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L9 9.414V13a1 1 0 102 0V9.414l1.293 1.293a1 1 0 001.414-1.414z" clip-rule="evenodd" />
+                    </svg>
+                </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+
+function toggleReply(commentId) {
+        const replyContainer = document.getElementById(`reply-container-${commentId}`);
+        const button = replyContainer.previousElementSibling;
+        if (replyContainer.classList.contains('max-h-0')) {
+            replyContainer.classList.remove('max-h-0');
+            replyContainer.classList.add('max-h-screen');
+            button.textContent = 'Hide Reply';
+        } else {
+            replyContainer.classList.remove('max-h-screen');
+            replyContainer.classList.add('max-h-0');
+            button.textContent = 'Show Reply';
+        }
+    }
+
+    
+    function toggleDropdown(dropdownId) {
+        const dropdown = document.getElementById(dropdownId);
+        dropdown.classList.toggle('hidden');
+    }
+
+
+
+    function setParentComment(postId, parentCommentId, username, content) {
+        const parentCommentInput = document.getElementById(`parentComment-${postId}`);
+        parentCommentInput.value = parentCommentId;
+
+        // Show parent comment preview
+        const preview = document.getElementById(`parentCommentPreview-${postId}`);
+        const userElement = document.getElementById(`parentCommentUser-${postId}`);
+        const contentElement = document.getElementById(`parentCommentContent-${postId}`);
+        
+        preview.classList.remove('hidden');
+        userElement.textContent = username;
+        contentElement.textContent = content.length > 50 ? content.substring(0, 50) + '...' : content;
+
+        // Hide the dropdown menu
+        const dropdown = document.getElementById(`dropdown-${parentCommentId}`);
+        if (dropdown) {
+            dropdown.classList.add('hidden');
+        }
+
+        // Focus on the comment input
+        focusCommentInput(postId);
+    }
+
+    function clearParentComment(postId) {
+        const parentCommentInput = document.getElementById(`parentComment-${postId}`);
+        parentCommentInput.value = '';
+
+        // Hide parent comment preview
+        const preview = document.getElementById(`parentCommentPreview-${postId}`);
+        preview.classList.add('hidden');
+    }
+
+
+
+
+    function focusCommentInput(postId) {
+        const commentInput = document.getElementById(`newComment-${postId}`);
+        commentInput.focus();
+    }
+
+    document.getElementById('postCommentForm-{{ post.id }}').addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        const formData = new FormData(this);
+        const parentCommentId = document.getElementById(`parentComment-{{ post.id }}`).value;
+        console.log('Submitting comment for post ID: {{ post.id }}');
+        console.log('Parent comment ID:', parentCommentId);
+        console.log('Comment content:', formData.get('content'));
+
+        fetch(`/comment/create/{{ post.id }}/`, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.comment_html) {
+                if (parentCommentId) {
+                    const replyContainer = document.getElementById(`reply-container-${parentCommentId}`);
+                    if (replyContainer) {
+                        replyContainer.innerHTML = '';
+                        const newReplyElement = document.createElement('div');
+                        newReplyElement.innerHTML = data.comment_html;
+                        replyContainer.appendChild(newReplyElement);
+                        replyContainer.classList.remove('max-h-0');
+                        replyContainer.classList.add('max-h-screen');
+                    } else {
+                        console.error('Reply container not found');
+                    }
+                } else {
+                    const commentSection = document.getElementById(`commentSection-{{ post.id }}`);
+                    if (commentSection) {
+                        commentSection.innerHTML = '';
+                        const newCommentElement = document.createElement('div');
+                        newCommentElement.innerHTML = data.comment_html;
+                        commentSection.appendChild(newCommentElement);
+                    } else {
+                        console.error('Comment section not found');
+                    }
+                }
+                document.getElementById('newComment-{{ post.id }}').value = '';
+                document.getElementById('parentComment-{{ post.id }}').value = '';
+                console.log('Comment successfully added.');
+                clearParentComment('{{ post.id}}');
+            } else {
+                console.error('Error adding comment:', data.error);
+            }
+        })
+        .catch(error => console.error('Error posting comment:', error));
+    });
+</script>
+
+{% include 'all_comments.html' %}

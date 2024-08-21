@@ -1,0 +1,158 @@
+{% extends 'base.html' %}
+
+{% block start %}
+<div class="max-w-4xl mx-auto p-6">
+    <!-- Header Section -->
+    <div class="text-center mb-8">
+        <div class="flex items-center justify-center space-x-2">
+            <span class="text-6xl text-gray-800 dark:text-gray-300">#</span>
+            <h1 class="text-4xl font-bold text-gray-800 dark:text-gray-300">{{ tag_name }}</h1>
+        </div>
+        <p class="mt-2 text-gray-600 dark:text-gray-400">{{ posts.count }} posts</p>
+    </div>
+
+    <!-- Posts Section -->
+    {% if posts %}
+        <div class="space-y-6" id="posts-content">
+                {% include 'post_list.html' %}
+            
+        </div>
+
+        <div id="loading" class="text-center py-4" style="display: none;">
+            <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12 mb-4 mx-auto"></div>
+            <p>Loading more posts...</p>
+        </div>
+        
+        <div id="no-more-posts" class="text-center py-4 text-gray-600" style="display: none;">
+            <p>No more posts to load</p>
+        </div>
+    {% else %}
+        <p class="text-center text-gray-600 dark:text-gray-400">No posts found for this hashtag.</p>
+    {% endif %}
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<!-- like functionality -->
+<script>
+    $(document).ready(function() {
+        console.log("Document is ready!");
+    
+        $('.like-button').click(function(e) {
+            e.preventDefault();
+            console.log("Like button clicked!");
+    
+            var button = $(this);
+            var postId = button.data('post-id');
+            console.log("Post ID:", postId);
+    
+            $.ajax({
+                url: '{% url "like_post" %}',
+                type: 'POST',
+                data: {
+                    'post_id': postId,
+                    'csrfmiddlewaretoken': '{{ csrf_token }}'
+                },
+                success: function(response) {
+                    console.log("AJAX request successful!");
+                    console.log("Response:", response);
+    
+                    var likeCount = button.find('.like-count');
+                    likeCount.text(response.total_likes);
+    
+                    if (response.liked) {
+                        button.find('svg').attr('fill', 'currentColor');
+                        button.addClass('text-red-600').removeClass('text-gray-600');
+                        console.log("Post liked!");
+                    } else {
+                        button.find('svg').attr('fill', 'none');
+                        button.addClass('text-gray-600').removeClass('text-red-600');
+                        console.log("Post unliked!");
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error("AJAX request failed!");
+                    console.error("Status:", status);
+                    console.error("Error:", error);
+                }
+            });
+        });
+    
+        $('.save-button').click(function(e) {
+            e.preventDefault();
+            console.log("Save button clicked!");
+    
+            var button = $(this);
+            var postId = button.data('post-id');
+            console.log("Post ID:", postId);
+    
+            $.ajax({
+                url: '{% url "save_post" %}',
+                type: 'POST',
+                data: {
+                    'post_id': postId,
+                    'csrfmiddlewaretoken': '{{ csrf_token }}'
+                },
+                success: function(response) {
+                    console.log("AJAX request successful!");
+                    console.log("Response:", response);
+    
+                    var saveCount = button.find('.save-count');
+                    saveCount.text(response.total_saves);
+    
+                    if (response.saved) {
+                        button.find('svg').attr('fill', 'currentColor');
+                        button.addClass('text-indigo-600').removeClass('text-gray-600');
+                        console.log("Post saved!");
+                    } else {
+                        button.find('svg').attr('fill', 'none');
+                        button.addClass('text-gray-600').removeClass('text-indigo-600');
+                        console.log("Post unsaved!");
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error("AJAX request failed!");
+                    console.error("Status:", status);
+                    console.error("Error:", error);
+                }
+            });
+        });
+    });
+    </script>
+
+  <!-- image carousel -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const carousels = document.querySelectorAll('[data-carousel]');
+        
+        carousels.forEach(carousel => {
+            const postId = carousel.dataset.carousel;
+            const prevBtn = document.querySelector(`[data-carousel-prev="${postId}"]`);
+            const nextBtn = document.querySelector(`[data-carousel-next="${postId}"]`);
+            const slides = carousel.children;
+            let currentIndex = 0;
+    
+            function showSlide(index) {
+                carousel.style.transform = `translateX(-${index * 100}%)`;
+            }
+    
+            if (prevBtn) {
+                prevBtn.addEventListener('click', () => {
+                    currentIndex = (currentIndex - 1 + slides.length) % slides.length;
+                    showSlide(currentIndex);
+                });
+            }
+    
+            if (nextBtn) {
+                nextBtn.addEventListener('click', () => {
+                    currentIndex = (currentIndex + 1) % slides.length;
+                    showSlide(currentIndex);
+                });
+            }
+        });
+    });
+    
+    </script>  
+   
+
+
+{% endblock %}

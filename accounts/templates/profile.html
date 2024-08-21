@@ -1,0 +1,651 @@
+{% extends 'base.html' %}
+
+{% block styles %}
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+    body {
+        font-family: 'Poppins', sans-serif;
+        background-color: #f7f7f7;
+    }
+
+</style>
+{% endblock %}
+
+{% block start %}
+<div class="max-w-4xl mx-auto px-4 py-12">
+    <!-- Profile Header -->
+    <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-lg p-8 mb-12">
+        <div class="flex flex-col items-center md:flex-row md:items-start md:justify-between">
+            <div class="relative flex flex-col items-center md:flex-row md:items-start group">
+                <!-- Image and button container -->
+                <div class="relative">
+                    <img src="{{ profile_picture_url|default:'https://via.placeholder.com/150' }}" alt="Profile Picture" class="rounded-full h-32 w-32 object-cover border-4 border-indigo-200">
+                    {% if profile_user == request.user %}
+                    <div class="absolute inset-x-0 bottom-0 flex justify-center">
+                        <button id="changeProfilePicButton" class="bg-indigo-500 text-white font-semibold py-2 px-4 rounded-b-full rounded-t-none transition-opacity duration-300 opacity-0 group-hover:opacity-100"
+                                style="height: 40px; width: 150px;">
+                            Change
+                        </button>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <div class="mt-4 md:mt-0 md:ml-8 text-center md:text-left">
+                    <h1 class="text-3xl font-semibold text-gray-800 dark:text-gray-200">@{{ profile_user.username }}</h1>
+                    <p class="text-gray-600 dark:text-gray-300 mt-1">  
+                        {% if profile_detail.first_name or profile_detail.last_name %}
+                            {{ profile_detail.first_name|default:"First Name" }} {{ profile_detail.last_name|default:"Last Name" }}
+                        {% else %}
+                            Default Name
+                        {% endif %}
+                    </p>
+                    <div class="mt-2 flex justify-center md:justify-start items-center text-gray-600 dark:text-gray-300">
+                        <span>{{ follower_count }} followers</span>
+                    </div>
+                    <div class="mt-4 flex justify-center md:justify-start space-x-4">
+                        {% if profile_detail.fb_link %}
+                        <a href="{{ profile_detail.fb_link }}" target="_blank" class="text-indigo-500 hover:text-indigo-600 transition">
+                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path fill-rule="evenodd" d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z" clip-rule="evenodd" />
+                            </svg>
+                        </a>
+                        {% endif %}
+                        
+                        {% if profile_detail.x_link %}
+                        <a href="{{ profile_detail.x_link }}" target="_blank" class="text-indigo-500 hover:text-indigo-600 transition">
+                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M8.29 20.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0022 5.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.072 4.072 0 012.8 9.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 012 18.407a11.616 11.616 0 006.29 1.84" />
+                            </svg>
+                        </a>
+                        {% endif %}
+                        
+                        {% if profile_detail.insta_link %}
+                        <a href="{{ profile_detail.insta_link }}" target="_blank" class="text-indigo-500 hover:text-indigo-600 transition">
+                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path fill-rule="evenodd" d="M12.315 2c2.43 0 2.784.013 3.808.06 1.064.049 1.791.218 2.427.465a4.902 4.902 0 011.772 1.153 4.902 4.902 0 011.153 1.772c.247.636.416 1.363.465 2.427.048 1.067.06 1.407.06 4.123v.08c0 2.643-.012 2.987-.06 4.043-.049 1.064-.218 1.791-.465 2.427a4.902 4.902 0 01-1.153 1.772 4.902 4.902 0 01-1.772 1.153c-.636.247-1.363.416-2.427.465-1.067.048-1.407.06-4.123.06h-.08c-2.643 0-2.987-.012-4.043-.06-1.064-.049-1.791-.218-2.427-.465a4.902 4.902 0 01-1.772-1.153 4.902 4.902 0 01-1.153-1.772c-.247-.636-.416-1.363-.465-2.427-.047-1.024-.06-1.379-.06-3.808v-.63c0-2.43.013-2.784.06-3.808.049-1.064.218-1.791.465-2.427a4.902 4.902 0 011.153-1.772A4.902 4.902 0 015.45 2.525c.636-.247 1.363-.416 2.427-.465C8.901 2.013 9.256 2 11.685 2h.63zm-.081 1.802h-.468c-2.456 0-2.784.011-3.807.058-.975.045-1.504.207-1.857.344-.467.182-.8.398-1.15.748-.35.35-.566.683-.748 1.15-.137.353-.3.882-.344 1.857-.047 1.023-.058 1.351-.058 3.807v.468c0 2.456.011 2.784.058 3.807.045.975.207 1.504.344 1.857.182.466.399.8.748 1.15.35.35.683.566 1.15.748.353.137.882.3 1.857.344 1.054.048 1.37.058 4.041.058h.08c2.597 0 2.917-.01 3.96-.058.976-.045 1.505-.207 1.858-.344.466-.182.8-.398 1.15-.748.35-.35.566-.683.748-1.15.137-.353.3-.882.344-1.857.048-1.055.058-1.37.058-4.041v-.08c0-2.597-.01-2.917-.058-3.96-.045-.976-.207-1.505-.344-1.858a3.097 3.097 0 00-.748-1.15 3.098 3.098 0 00-1.15-.748c-.353-.137-.882-.3-1.857-.344-1.023-.047-1.351-.058-3.807-.058zM12 6.865a5.135 5.135 0 110 10.27 5.135 5.135 0 010-10.27zm0 1.802a3.333 3.333 0 100 6.666 3.333 3.333 0 000-6.666zm5.338-3.205a1.2 1.2 0 110 2.4 1.2 1.2 0 010-2.4z" clip-rule="evenodd" />
+                            </svg>
+                        </a>
+                        {% endif %}
+                        
+                        {% if profile_detail.yt_link %}
+                        <a href="{{ profile_detail.yt_link }}" target="_blank" class="text-indigo-500 hover:text-indigo-600 transition">
+                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path fill-rule="evenodd" d="M19.812 5.418c.861.23 1.538.907 1.768 1.768C21.998 8.746 22 12 22 12s0 3.255-.418 4.814a2.504 2.504 0 0 1-1.768 1.768c-1.56.419-7.814.419-7.814.419s-6.255 0-7.814-.419a2.505 2.505 0 0 1-1.768-1.768C2 15.255 2 12 2 12s0-3.255.417-4.814a2.507 2.507 0 0 1 1.768-1.768C5.744 5 11.998 5 11.998 5s6.255 0 7.814.418ZM15.194 12 10 15V9l5.194 3Z" clip-rule="evenodd" />
+                            </svg>
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% if profile_user != request.user %}
+            <div class="mt-6 md:mt-0">
+                {% if not is_following %}
+                <button id="followButton" class="bg-indigo-500 hover:bg-indigo-600 text-white font-semibold py-2 px-4 rounded-full transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-opacity-50">
+                    Follow
+                </button>
+                {% else %}
+                <div class="relative inline-block text-left">
+                    <button id="followDropdown" class="bg-gray-500 text-white font-semibold py-2 px-4 rounded-full transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-opacity-50">
+                        Following
+                        <svg class="w-4 h-4 ml-2 inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </button>
+                    <div id="dropdownMenu" class="origin-top-right absolute right-0 mt-2 w-32 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 hidden">
+                        <div class="py-1" role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
+                            <a href="#" id="unfollowButton" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900" role="menuitem">Unfollow</a>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            {%else%}
+            <div class="mt-6 md:mt-0">
+                <a href="{% url 'edit_profile' profile_user.username  %}" class="bg-indigo-500 hover:bg-indigo-600 text-white font-semibold py-2 px-4 rounded-full transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-opacity-50">
+                    Edit Profile
+                </a>
+            </div>
+            {% endif %}
+        </div>
+        <!-- Expandable section -->
+        <div id="expandableSection" class="mt-6 overflow-hidden transition-all duration-300 ease-in-out" style="max-height: 0;">
+            <div class="py-4">
+                <hr class="border-gray-300 dark:border-gray-700 mb-4">
+                <div class="text-gray-700 dark:text-gray-300">
+                    <h3 class="text-lg font-semibold mb-2">Bio</h3>
+                    <p>{{ profile_detail.bio|default:"No bio available" }}</p>
+                </div>
+                <!-- Add more profile information here as needed -->
+            </div>
+        </div>
+
+        <!-- Expand/Collapse button -->
+        <div class="mt-4 text-center">
+            <button id="expandButton" class="text-indigo-500 hover:text-indigo-600 focus:outline-none transition-colors duration-200">
+                <span id="expandButtonText">Show More</span>
+                <svg id="expandIcon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block ml-1 transform transition-transform duration-200" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                </svg>
+            </button>
+        </div>
+    </div>
+
+<!-- Profile Picture Modal -->
+<div id="profilePicModal" class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 hidden z-50">
+    <div class="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-lg relative max-w-md w-full">
+        <h2 class="text-2xl font-semibold mb-4 text-gray-800 dark:text-gray-200">Change Profile Picture</h2>
+        <form id="cropForm" action="{% url 'update_profile_picture' %}" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="mb-4">
+                <label for="profilePicInput" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Select an image:</label>
+                <input type="file" id="profilePicInput" name="profile_picture" accept="image/*" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
+            </div>
+            <div class="mb-4 relative" style="height: 300px;">
+                <img id="profilePicPreview" src="#" alt="Image preview" style="display: none; max-width: 100%; max-height: 300px;">
+            </div>
+            <div class="flex justify-between">
+                <button type="button" id="cropAndUpload" class="bg-indigo-500 hover:bg-indigo-600 text-white font-semibold py-2 px-4 rounded-full transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-opacity-50 disabled:opacity-50 disabled:cursor-not-allowed" disabled>Crop & Upload</button>
+                <button type="button" id="closeModal" class="bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded-full transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-50">Close</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+    
+    {% if profile_user == request.user %}
+        {% include 'add_new.html' %}
+    {% endif %}
+    {% include 'skeleton.html' %}
+    {% if posts %}
+    <div id="post-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {% for post in posts %}
+        <div class="mb-4">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-md overflow-hidden transition-transform duration-300">
+                <div class="p-6">
+                    <div class="flex items-center mb-4">
+                        <img src="{{ post.user_pic|default:'https://via.placeholder.com/150' }}" alt="User" class="rounded-full w-10 h-10 object-cover">
+                        <h3 class="ml-3 font-medium text-gray-800 dark:text-gray-200">{{ post.user.username }}</h3>
+                    </div>
+                    
+                    <div class="relative w-full flex items-center justify-start p-5">
+                        <p class="text-left font-bold text-lg drop-shadow-md overflow-hidden select-none" data-caption="{{ post.caption }}">
+                            <span id="post_content" class="line-clamp-3">
+                                {% for word in post.caption.split %}
+                                    {% if word|slice:"0:1" == '@' %}
+                                        {% with username=word|slice:"1:" %}
+                                            <a href="{% url 'profile' username=username %}" class="text-blue-500 hover:text-blue-700 underline cursor-pointer">@{{ username }}</a>
+                                        {% endwith %}
+                                    {% elif word|slice:"0:1" == '#' %}
+                                        {% with tagname=word|slice:"1:" %}
+                                            <a href="{% url 'hashtag' tagname=tagname %}" class="text-blue-500 hover:text-blue-700 underline cursor-pointer">#{{ tagname }}</a>
+                                        {% endwith %}
+                                    {% else %}
+                                        {{ word }}
+                                    {% endif %}
+                                {% endfor %}
+                            </span>
+                            
+                        </p>
+                    </div>
+                    
+                    <!-- Enhanced Image Carousel -->
+                    <div class="relative mt-4">
+                        {% if post.images.count > 1 %}
+                        <button class="absolute top-1/2 left-2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-75 z-10" data-carousel-prev="{{ post.id }}">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                            </svg>
+                        </button>
+                        <button class="absolute top-1/2 right-2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-75 z-10" data-carousel-next="{{ post.id }}">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                            </svg>
+                        </button>
+                        {% endif %}
+    
+                        <div class="overflow-hidden">
+                            <div class="flex transition-transform duration-500 ease-in-out" data-carousel="{{ post.id }}">
+                                {% for image in post.images.all %}
+                                <div class="w-full flex-shrink-0">
+                                    <div class="relative pb-[100%]">
+                                        <img src="{{ image.signed_url }}" alt="Post Image" class="absolute inset-0 w-full h-full object-cover" onerror="this.style.display='none';">
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <!-- Dots Indicator -->
+                        <div class="flex justify-center mt-2">
+                            {% for image in post.images.all %}
+                            <div class="w-2 h-2 bg-gray-400 rounded-full mx-1 {{ forloop.first|yesno:'bg-gray-800, ' }}" data-carousel-dot="{{ post.id }}"></div>
+                            {% endfor %}
+                        </div>
+                    </div>
+    
+                    <hr class="border-gray-300 dark:border-gray-700 my-4">
+        
+                    <div class="flex justify-between items-center">
+                        <div class="flex space-x-4 items-center">
+                            <button class="like-button text-gray-600 hover:text-indigo-500 transition flex items-center {% if post.is_liked %}text-red-600{% else %}text-gray-600 dark:text-gray-200{% endif %}" data-post-id="{{ post.post_id }}">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="{% if post.is_liked %}currentColor{% else %}none{% endif %}" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                                </svg>
+                                <span class="like-count text-sm text-gray-600 dark:text-grey-100">{{ post.like_set.count }}</span>
+                            </button>
+                            
+                            <button onclick="openCommentModal('{{ post.id }}')" class="text-gray-600 hover:text-indigo-500 transition dark:text-gray-200">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                                </svg>
+                            </button>
+                        </div>
+                        <button class="save-button flex items-center space-x-2 {% if post.is_saved %}text-indigo-600{% else %}text-gray-600 dark:text-gray-200{% endif %} hover:text-gray-900" data-post-id="{{ post.post_id }}">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="{% if post.is_saved %}currentColor{% else %}none{% endif %}" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+                            </svg>
+                            <span class="save-count pr-1">{{ post.save_set.count }}</span>
+                        </button>
+                    </div>
+        
+                    <!-- Comments Section -->
+                    {% include 'comment_section.html' %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p class="text-center text-gray-600">No posts found.</p>
+    {% endif %}
+
+<!-- Include Cropper.js CSS -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css" rel="stylesheet" />
+
+<!-- Include Cropper.js JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+$(document).ready(function() {
+    console.log("Document is ready!");
+
+    // Attach initial handlers
+    attachDropdownHandlers();
+    attachFollowHandler();
+
+    // Function to attach follow button click handler
+    function attachFollowHandler() {
+        $('#followButton').off('click').on('click', function(e) {
+            e.preventDefault();
+            console.log("Follow button clicked!");
+
+            var username = "{{ profile_user.username }}";
+            console.log("Username:", username);
+
+            $.ajax({
+                url: '{% url "follow_user" username=profile_user.username %}',
+                type: 'POST',
+                data: {
+                    'csrfmiddlewaretoken': '{{ csrf_token }}',
+                    'action': 'follow'
+                },
+                success: function(response) {
+                    console.log("AJAX request successful!");
+                    console.log("Response:", response);
+
+                    if (response.success) {
+                        // Update the button to "Following"
+                        $('#followButton').replaceWith(`
+                            <div class="relative inline-block text-left">
+                                <button id="followDropdown" class="bg-gray-500 text-white font-semibold py-2 px-4 rounded-full transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-opacity-50">
+                                    Following
+                                    <svg class="w-4 h-4 ml-2 inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                    </svg>
+                                </button>
+                                <div id="dropdownMenu" class="origin-top-right absolute right-0 mt-2 w-32 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 hidden">
+                                    <div class="py-1" role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
+                                        <a href="#" id="unfollowButton" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900" role="menuitem">Unfollow</a>
+                                    </div>
+                                </div>
+                            </div>
+                        `);
+
+                        try {
+                            confetti({
+                                particleCount: 100,
+                                spread: 70,
+                                origin: { y: 0.6 }
+                            });
+                            console.log("Confetti effect triggered");
+                        } catch (error) {
+                            console.error("Error triggering confetti:", error);
+                        }
+                        attachDropdownHandlers();
+                    } else {
+                        alert(response.message);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error("AJAX request failed!");
+                    console.error("Status:", status);
+                    console.error("Error:", error);
+                }
+            });
+        });
+    }
+
+    // Function to attach dropdown menu handlers
+    function attachDropdownHandlers() {
+        // Click handler for the dropdown toggle
+        $('#followDropdown').off('click').on('click', function(e) {
+            e.preventDefault();
+            console.log("Dropdown button clicked!");
+
+            var dropdownMenu = $('#dropdownMenu');
+            dropdownMenu.toggleClass('hidden');
+        });
+
+        // Click handler for the unfollow button
+        $('#unfollowButton').off('click').on('click', function(e) {
+            e.preventDefault();
+            console.log("Unfollow button clicked!");
+
+            var username = "{{ profile_user.username }}";
+            console.log("Username:", username);
+
+            $.ajax({
+                url: '{% url "follow_user" username=profile_user.username %}',
+                type: 'POST',
+                data: {
+                    'csrfmiddlewaretoken': '{{ csrf_token }}',
+                    'action': 'unfollow'
+                },
+                success: function(response) {
+                    console.log("AJAX request successful!");
+                    console.log("Response:", response);
+
+                    if (response.success) {
+                        // Update the button to "Follow"
+                        $('.relative.inline-block.text-left').replaceWith(`
+                            <button id="followButton" class="bg-indigo-500 hover:bg-indigo-600 text-white font-semibold py-2 px-4 rounded-full transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-opacity-50">
+                                Follow
+                            </button>
+                        `);
+                        attachFollowHandler();
+                    } else {
+                        alert(response.message);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error("AJAX request failed!");
+                    console.error("Status:", status);
+                    console.error("Error:", error);
+                }
+            });
+        });
+    }
+
+    // Click handler to close dropdown if clicked outside
+    $(document).click(function(event) {
+        if (!$(event.target).closest('#followDropdown, #dropdownMenu').length) {
+            $('#dropdownMenu').addClass('hidden');
+        }
+    });
+
+    // Click handler for like button
+    $('.like-button').click(function(e) {
+        e.preventDefault();
+        console.log("Like button clicked!");
+
+        var button = $(this);
+        var postId = button.data('post-id');
+        console.log("Post ID:", postId);
+
+        $.ajax({
+            url: '{% url "like_post" %}',
+            type: 'POST',
+            data: {
+                'post_id': postId,
+                'csrfmiddlewaretoken': '{{ csrf_token }}'
+            },
+            success: function(response) {
+                console.log("AJAX request successful!");
+                console.log("Response:", response);
+
+                var likeCount = button.find('.like-count');
+                likeCount.text(response.total_likes);
+
+                if (response.liked) {
+                    button.find('svg').attr('fill', 'currentColor');
+                    button.addClass('text-red-600').removeClass('text-gray-600');
+                    console.log("Post liked!");
+                } else {
+                    button.find('svg').attr('fill', 'none');
+                    button.addClass('text-gray-600').removeClass('text-red-600');
+                    console.log("Post unliked!");
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error("AJAX request failed!");
+                console.error("Status:", status);
+                console.error("Error:", error);
+            }
+        });
+    });
+
+    $('.save-button').click(function(e) {
+            e.preventDefault();
+            console.log("Save button clicked!");
+    
+            var button = $(this);
+            var postId = button.data('post-id');
+            console.log("Post ID:", postId);
+    
+            $.ajax({
+                url: '{% url "save_post" %}',
+                type: 'POST',
+                data: {
+                    'post_id': postId,
+                    'csrfmiddlewaretoken': '{{ csrf_token }}'
+                },
+                success: function(response) {
+                    console.log("AJAX request successful!");
+                    console.log("Response:", response);
+    
+                    var saveCount = button.find('.save-count');
+                    saveCount.text(response.total_saves);
+    
+                    if (response.saved) {
+                        button.find('svg').attr('fill', 'currentColor');
+                        button.addClass('text-indigo-600').removeClass('text-gray-600');
+                        console.log("Post saved!");
+                    } else {
+                        button.find('svg').attr('fill', 'none');
+                        button.addClass('text-gray-600').removeClass('text-indigo-600');
+                        console.log("Post unsaved!");
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error("AJAX request failed!");
+                    console.error("Status:", status);
+                    console.error("Error:", error);
+                }
+            });
+        });
+});
+    </script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const carousels = document.querySelectorAll('[data-carousel]');
+    
+    carousels.forEach(carousel => {
+        const postId = carousel.dataset.carousel;
+        const prevBtn = document.querySelector(`[data-carousel-prev="${postId}"]`);
+        const nextBtn = document.querySelector(`[data-carousel-next="${postId}"]`);
+        const slides = carousel.children;
+        let currentIndex = 0;
+
+        function showSlide(index) {
+            carousel.style.transform = `translateX(-${index * 100}%)`;
+        }
+
+        if (prevBtn) {
+            prevBtn.addEventListener('click', () => {
+                currentIndex = (currentIndex - 1 + slides.length) % slides.length;
+                showSlide(currentIndex);
+            });
+        }
+
+        if (nextBtn) {
+            nextBtn.addEventListener('click', () => {
+                currentIndex = (currentIndex + 1) % slides.length;
+                showSlide(currentIndex);
+            });
+        }
+    });
+});
+
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const changeProfilePicButton = document.getElementById('changeProfilePicButton');
+    const profilePicModal = document.getElementById('profilePicModal');
+    const closeModalButton = document.getElementById('closeModal');
+    const profilePicInput = document.getElementById('profilePicInput');
+    const profilePicPreview = document.getElementById('profilePicPreview');
+    const cropAndUploadButton = document.getElementById('cropAndUpload');
+    let cropper;
+
+    changeProfilePicButton.addEventListener('click', function() {
+        profilePicModal.classList.remove('hidden');
+    });
+
+    closeModalButton.addEventListener('click', function() {
+        profilePicModal.classList.add('hidden');
+        resetCropper();
+    });
+
+    profilePicInput.addEventListener('change', function (e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function (event) {
+                profilePicPreview.src = event.target.result;
+                profilePicPreview.style.display = 'block';
+                initCropper();
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    function initCropper() {
+        if (cropper) {
+            cropper.destroy();
+        }
+        cropper = new Cropper(profilePicPreview, {
+            aspectRatio: 1,
+            viewMode: 1,
+            dragMode: 'move',
+            autoCropArea: 0.8,
+            restore: false,
+            guides: false,
+            center: false,
+            highlight: false,
+            cropBoxMovable: false,
+            cropBoxResizable: false,
+            toggleDragModeOnDblclick: false,
+        });
+        cropAndUploadButton.disabled = false;
+    }
+
+    function resetCropper() {
+        if (cropper) {
+            cropper.destroy();
+            cropper = null;
+        }
+        profilePicPreview.src = '#';
+        profilePicPreview.style.display = 'none';
+        profilePicInput.value = '';
+        cropAndUploadButton.disabled = true;
+    }
+
+    cropAndUploadButton.addEventListener('click', function (e) {
+        e.preventDefault();
+        if (cropper) {
+            cropper.getCroppedCanvas().toBlob((blob) => {
+                const formData = new FormData();
+                formData.append('cropped_image', blob, 'profile_picture.jpg');
+                formData.append('csrfmiddlewaretoken', document.querySelector('input[name="csrfmiddlewaretoken"]').value);
+
+                fetch(document.getElementById('cropForm').action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Profile picture updated successfully!');
+                        location.reload();
+                    } else {
+                        alert('Error updating profile picture.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while updating the profile picture.');
+                })
+                .finally(() => {
+                    profilePicModal.classList.add('hidden');
+                    resetCropper();
+                });
+            }, 'image/jpeg', 0.8);
+        }
+    });
+
+    // Close modal when clicking outside
+    profilePicModal.addEventListener('click', function(event) {
+        if (event.target === profilePicModal) {
+            profilePicModal.classList.add('hidden');
+            resetCropper();
+        }
+    });
+});
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const expandButton = document.getElementById('expandButton');
+    const expandableSection = document.getElementById('expandableSection');
+    const expandButtonText = document.getElementById('expandButtonText');
+    const expandIcon = document.getElementById('expandIcon');
+
+    expandButton.addEventListener('click', function() {
+        const isExpanded = expandableSection.style.maxHeight !== '0px';
+        
+        if (isExpanded) {
+            // Collapse
+            expandableSection.style.maxHeight = '0px';
+            expandButtonText.textContent = 'Show More';
+            expandIcon.classList.remove('rotate-180');
+        } else {
+            // Expand
+            expandableSection.style.maxHeight = expandableSection.scrollHeight + 'px';
+            expandButtonText.textContent = 'Show Less';
+            expandIcon.classList.add('rotate-180');
+        }
+    });
+
+    // Initialize the section as collapsed
+    expandableSection.style.maxHeight = '0px';
+});
+</script>
+    
+
+{% endblock %}

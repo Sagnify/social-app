@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+
+{% block start %}
+<style>
+    .content-wrapper {
+        margin: 0 auto;
+        padding-top: 20px;
+    }
+
+    .search-bar {
+        margin: 0 auto;
+        max-width: 600px;
+        padding: 0 20px;
+    }
+
+    .search-results {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 20px;
+        margin-top: 20px;
+    }
+
+    .user-card {
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        text-align: center;
+    }
+
+    .user-card img {
+        border-radius: 50%;
+    }
+
+    .user-card h3 {
+        font-size: 1.25rem;
+        margin-top: 10px;
+    }
+
+    .user-card p {
+        font-size: 1rem;
+        color: gray;
+    }
+
+    .user-card button {
+        background-color: #4A90E2;
+        border: none;
+        border-radius: 5px;
+        color: white;
+        cursor: pointer;
+        padding: 10px 20px;
+        margin-top: 15px;
+    }
+
+    .user-card button:hover {
+        background-color: #357ABD;
+    }
+</style>
+
+<div class="content-wrapper mx-auto pt-8 px-4">
+    <div class="mb-6">
+        <h2 class="text-3xl font-bold text-center mb-6">Explore People</h2>
+        <div class="relative max-w-xl mx-auto">
+            <input type="text" id="searchInput" class="w-full px-4 py-2 rounded-full shadow focus:outline-none focus:ring-2 focus:ring-blue-400 dark:bg-gray-700 dark:text-white" placeholder="Search for people...">
+            <div class="absolute right-3 top-2 text-gray-500 dark:text-gray-300">
+                <i class="fas fa-search"></i>
+            </div>
+        </div>
+    </div>
+
+    <div id="searchResults" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        <!-- Dynamic search results will appear here -->
+    </div>
+
+    <div class="mt-8">
+        {% if recommended_profiles %}
+        <h2 class="text-2xl font-semibold mb-4">Recommended for You</h2>
+        {% endif %}
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-10">
+            {% for user in recommended_profiles %}
+
+            <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-lg">
+                <div class="flex items-center space-x-4">
+                    <img src="{{ post.user_pic|default:'https://via.placeholder.com/150' }}" alt="User" class="rounded-full w-12 h-12">
+                    <div>
+                        <h3 class="font-semibold">{{ user.username }}{% if user.username == request.user.username %} (You){% endif %}</h3>
+                        <!-- <p class="text-sm text-gray-600 dark:text-gray-400">Elk Grove, California</p> -->
+                    </div>
+                </div>
+                <button onclick="window.location.href='/p/@{{ user.username }}'" class="mt-4 w-full py-2 bg-gray-500 text-white rounded-full">View Profile</button>
+            </div>
+            {% endfor %}
+        </div>
+        
+    </div>
+</div>
+
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('searchInput');
+        const searchResults = document.getElementById('searchResults');
+
+        searchInput.addEventListener('input', function() {
+            const query = searchInput.value.trim();
+
+            if (query.length > 0) {
+                fetch(`/search_people/?q=${query}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        searchResults.innerHTML = '';
+                        const currentUsername = data.current_username;
+                        data.results.forEach(user => {
+                            const userCard = document.createElement('div');
+                            userCard.className = 'bg-white dark:bg-gray-800 p-4 rounded-lg shadow-lg';
+                            userCard.innerHTML = `
+                                <div class="flex items-center space-x-4">
+                                    <img src="${user.profile_picture_url || 'https://via.placeholder.com/150'}" alt="${user.username}'s profile" class="rounded-full w-12 h-12 object-cover">
+                                    <div>
+                                        <h3 class="font-semibold">${user.username} ${user.username === currentUsername ? '(You)' : ''}</h3>
+                                    </div>
+                                </div>
+                                <button onclick="window.location.href='/p/@${user.username}'" class="mt-4 w-full py-2 bg-gray-500 text-white rounded-full">View Profile</button>
+                            `;
+
+                            searchResults.appendChild(userCard);
+                        });
+                    })
+                    .catch(error => {
+                        console.error('Error fetching search results:', error);
+                    });
+            } else {
+                searchResults.innerHTML = '';
+            }
+        });
+    });
+</script>
+{% endblock %}

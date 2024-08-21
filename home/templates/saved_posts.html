@@ -1,0 +1,194 @@
+{% extends 'base.html' %}
+
+{% block start %}
+<div class="max-w-4xl mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-6 text-gray-800 dark:text-white">Saved Posts</h1>
+    
+    <div class="grid gap-6 md:grid-cols-2">
+        {% for post in saved_posts %}
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg">
+            <div class="p-4">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center space-x-3">
+                        <img src="{{ post.profile_picture_url |default:'https://via.placeholder.com/150' }}" alt="User" class="w-10 h-10 rounded-full">
+                        <div>
+                            <a href="{% url 'profile' post.user.username %}" class="font-semibold text-gray-800 dark:text-white hover:underline">
+                                @{{ post.user.username }}
+                            </a>
+                            <p id="post-date-{{ post.id }}" class="text-sm text-gray-500 dark:text-gray-400" data-created-at="{{ post.created_at|date:'c' }}"></p>
+                        </div>
+                    </div>
+                    <button class="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 transition-colors duration-200 remove-save-button" data-post-id="{{ post.post_id }}">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+                
+                <p class="text-gray-700 dark:text-gray-300 mb-4 line-clamp-3" data-caption="{{ post.caption }}">
+                    {% for word in post.caption.split %}
+                        {% if word|slice:"0:1" == '@' %}
+                            {% with username=word|slice:"1:" %}
+                                <a href="{% url 'profile' username=username %}" class="text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300">@{{ username }}</a>
+                            {% endwith %}
+                        {% else %}
+                            {{ word }}
+                        {% endif %}
+                    {% endfor %}
+                </p>
+            </div>
+            
+            <!-- Enhanced Image Carousel -->
+            <div class="relative">
+                {% if post.images.count > 1 %}
+                <button class="absolute top-1/2 left-2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-75 z-10 transition-opacity duration-200 opacity-0 group-hover:opacity-100" data-carousel-prev="{{ post.id }}">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                    </svg>
+                </button>
+                <button class="absolute top-1/2 right-2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-75 z-10 transition-opacity duration-200 opacity-0 group-hover:opacity-100" data-carousel-next="{{ post.id }}">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                </button>
+                {% endif %}
+                
+                <div class="overflow-hidden">
+                    <div class="flex transition-transform duration-500 ease-in-out" data-carousel="{{ post.id }}">
+                        {% for image in post.images.all %}
+                        <div class="w-full flex-shrink-0">
+                            <div class="relative pb-[100%]">
+                                <img src="{{ image.signed_url }}" alt="Post Image" class="absolute inset-0 w-full h-full object-cover" onerror="this.style.display='none';">
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                
+                <!-- Dots Indicator -->
+                {% if post.images.count > 1 %}
+                <div class="absolute bottom-2 left-0 right-0">
+                    <div class="flex justify-center space-x-2">
+                        {% for image in post.images.all %}
+                        <div class="w-2 h-2 rounded-full bg-white bg-opacity-50 {{ forloop.first|yesno:'bg-opacity-100,' }}" data-carousel-dot="{{ post.id }}"></div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-span-2 text-center py-8">
+            <p class="text-gray-600 dark:text-gray-400 text-lg">You haven't saved any posts yet.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('.remove-save-button').click(function(e) {
+            e.preventDefault();
+            var button = $(this);
+            var postId = button.data('post-id');
+            
+            $.ajax({
+                url: '{% url "remove_saved_post" %}',
+                type: 'POST',
+                data: {
+                    'post_id': postId,
+                    'csrfmiddlewaretoken': '{{ csrf_token }}'
+                },
+                success: function(response) {
+                    if (response.removed) {
+                        button.closest('.bg-white').fadeOut(300, function() {
+                            $(this).remove();
+                            if ($('.bg-white').length === 0) {
+                                $('.grid').html('<div class="col-span-2 text-center py-8"><p class="text-gray-600 dark:text-gray-400 text-lg">You haven\'t saved any posts yet.</p></div>');
+                            }
+                        });
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error("Error removing saved post:", error);
+                }
+            });
+        });
+    });
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const postDateElements = document.querySelectorAll('[id^="post-date-"]');
+        
+        postDateElements.forEach(function(element) {
+            const createdAt = new Date(element.dataset.createdAt);
+            element.textContent = timeAgo(createdAt);
+        });
+
+        function timeAgo(date) {
+            const now = new Date();
+            const secondsPast = (now.getTime() - date.getTime()) / 1000;
+
+            if (secondsPast < 60) {
+                return 'just now';
+            }
+            if (secondsPast < 3600) {
+                return Math.floor(secondsPast / 60) + 'min ago';
+            }
+            if (secondsPast <= 86400) {
+                return Math.floor(secondsPast / 3600) + 'hr ago';
+            }
+            if (secondsPast <= 2592000) { // within a month
+                return Math.floor(secondsPast / 86400) + 'd ago';
+            }
+            if (secondsPast <= 31104000) { // within a year
+                return Math.floor(secondsPast / 2592000) + 'm ago';
+            }
+            return Math.floor(secondsPast / 31104000) + 'yr ago';
+        }
+    });
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const carousels = document.querySelectorAll('[data-carousel]');
+        
+        carousels.forEach(carousel => {
+            const postId = carousel.dataset.carousel;
+            const prevBtn = document.querySelector(`[data-carousel-prev="${postId}"]`);
+            const nextBtn = document.querySelector(`[data-carousel-next="${postId}"]`);
+            const slides = carousel.children;
+            const dots = document.querySelectorAll(`[data-carousel-dot="${postId}"]`);
+            let currentIndex = 0;
+    
+            function showSlide(index) {
+                carousel.style.transform = `translateX(-${index * 100}%)`;
+                updateDots(index);
+            }
+    
+            function updateDots(index) {
+                dots.forEach((dot, i) => {
+                    dot.classList.toggle('bg-opacity-100', i === index);
+                    dot.classList.toggle('bg-opacity-50', i !== index);
+                });
+            }
+    
+            if (prevBtn) {
+                prevBtn.addEventListener('click', () => {
+                    currentIndex = (currentIndex - 1 + slides.length) % slides.length;
+                    showSlide(currentIndex);
+                });
+            }
+    
+            if (nextBtn) {
+                nextBtn.addEventListener('click', () => {
+                    currentIndex = (currentIndex + 1) % slides.length;
+                    showSlide(currentIndex);
+                });
+            }
+        });
+    });
+</script>
+{% endblock %}

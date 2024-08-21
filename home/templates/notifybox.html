@@ -1,0 +1,124 @@
+<div id="notificationBox" class="fixed top-[10%] left-0 w-full h-[82%] bg-white dark:bg-gray-800 text-black dark:text-white rounded-xl shadow-lg overflow-hidden transition-transform ease-in-out duration-300 transform -translate-x-full z-10 lg:left-auto lg:right-0 lg:w-1/5 lg:h-4/5 lg:top-[15%] lg:translate-x-full">
+    <div class="p-4 h-full flex flex-col justify-between overflow-y-auto custom-scrollbar">
+        <h4 class="text-lg font-semibold mb-4">Notifications</h4>
+        <div class="flex space-x-2 mb-4">
+            <button id="allBtn" class="px-3 py-1 bg-blue-500 text-white rounded-full">All</button>
+            <button id="unreadBtn" class="px-3 py-1 bg-gray-300 dark:bg-gray-600 text-black dark:text-white rounded-full">Unread</button>
+        </div>
+        <div id="notificationLists" class="flex-grow">
+            <ul id="allNotifications">
+                {% if notifications %}
+                {% for notification in notifications %}
+                <li class="notification-item py-3 p-1 pl-2 mb-1 rounded-md {% if not notification.read %}bg-blue-100 dark:bg-gray-700 unread{% else %}bg-gray-100 dark:bg-gray-800{% endif %}">
+                    <a href="{% url 'mark_notification_read' notification.id %}">
+                        <div class="flex items-start space-x-4">
+                            <div class="flex-shrink-0">
+                                <i class="{{ notification.icon }}"></i>
+                            </div>
+                            <div class="flex-grow">
+                                <p class="text-sm font-medium">{{ notification.title }}</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400">{{ notification.description }}</p>
+                            </div>
+                        </div>
+                    </a>
+                </li>
+                {% if not forloop.last %}
+                <hr class="border-gray-200 dark:border-gray-600 my-2">
+                {% endif %}
+                {% endfor %}
+                {% else %}
+                <li class="py-3">
+                    <p class="text-sm text-gray-500 dark:text-gray-400">No notifications yet</p>
+                </li>
+                {% endif %}
+            </ul>
+            <ul id="unreadNotifications" class="hidden">
+                {% if unread_notifications %}
+                {% for notification in unread_notifications %}
+                <!-- {% if not notification.read %} -->
+                <li class="notification-item py-3 p-1 pl-2 mb-1 rounded-md bg-blue-100 dark:bg-gray-700">
+                    <a href="{% url 'mark_notification_read' notification.id %}">
+                        <div class="flex items-start space-x-4">
+                            <div class="flex-shrink-0">
+                                <i class="{{ notification.icon }}"></i>
+                            </div>
+                            <div class="flex-grow">
+                                <p class="text-sm font-medium">{{ notification.title }}</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400">{{ notification.description }}</p>
+                            </div>
+                        </div>
+                    </a>
+                </li>
+                {% if not forloop.last %}
+                <hr class="border-gray-200 dark:border-gray-600 my-2">
+                {% endif %}
+                
+                <!-- {% endif %} -->
+                {% endfor %}
+                {% else %}
+                <li class="py-3">
+                    <p class="text-sm text-gray-500 dark:text-gray-400">No unread notifications yet</p>
+                </li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('allBtn').addEventListener('click', function() {
+    document.getElementById('allNotifications').classList.remove('hidden');
+    document.getElementById('unreadNotifications').classList.add('hidden');
+    document.getElementById('allBtn').classList.add('bg-blue-500');
+    document.getElementById('unreadBtn').classList.remove('bg-blue-500');
+    document.getElementById('allBtn').classList.remove('bg-gray-300');
+    document.getElementById('unreadBtn').classList.add('bg-gray-300');
+    document.getElementById('allBtn').classList.remove('dark:bg-gray-600');
+    document.getElementById('unreadBtn').classList.add('dark:bg-gray-600');
+});
+
+document.getElementById('unreadBtn').addEventListener('click', function() {
+    document.getElementById('allNotifications').classList.add('hidden');
+    document.getElementById('unreadNotifications').classList.remove('hidden');
+    document.getElementById('unreadBtn').classList.add('bg-blue-500');
+    document.getElementById('allBtn').classList.remove('bg-blue-500');
+    document.getElementById('unreadBtn').classList.remove('bg-gray-300');
+    document.getElementById('allBtn').classList.add('bg-gray-300');
+    document.getElementById('allBtn').classList.add('dark:bg-gray-600');
+    document.getElementById('unreadBtn').classList.remove('dark:bg-gray-600');
+});
+</script>
+
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const notifyToggle = document.getElementById('notifyToggle');
+        const notificationBox = document.getElementById('notificationBox');
+
+        notifyToggle.addEventListener('click', function() {
+            const isDesktop = window.matchMedia("(min-width: 1024px)").matches;
+
+            if (isDesktop) {
+                notificationBox.classList.toggle('lg:translate-x-full');
+                notificationBox.classList.toggle('lg:translate-x-0');
+            } else {
+                notificationBox.classList.toggle('-translate-x-full');
+                notificationBox.classList.toggle('translate-x-0');
+            }
+        });
+
+        // Add event listener for screen size changes
+        window.addEventListener('resize', function() {
+            const isDesktop = window.matchMedia("(min-width: 1024px)").matches;
+
+            if (isDesktop) {
+                notificationBox.classList.remove('-translate-x-full', 'translate-x-0');
+                notificationBox.classList.add('lg:translate-x-full');
+            } else {
+                notificationBox.classList.remove('lg:translate-x-full', 'lg:translate-x-0');
+                notificationBox.classList.add('-translate-x-full');
+            }
+        });
+    });
+</script>
