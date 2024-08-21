@@ -1,7 +1,7 @@
 {% for post in posts %}
 
 <div class="space-y-6">
-    <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow mb-2" id="post-{{ post.id }}">
+    <div class="bg-white dark:bg-gray-900 p-4 rounded-lg shadow mb-2" id="post-{{ post.id }}">
         <div class="flex items-center justify-between mb-4">
             <div class="flex items-center space-x-2">
                 <img src="{{ post.user_pic|default:'https://via.placeholder.com/150' }}" alt="User" class="rounded-full" style="width: 25px;">

@@ -3,7 +3,7 @@
         {% if post.random_comment.parent_id is None %}
         <div class="flex items-start space-x-4">
             <img src="{{ post.random_comment.user_pic |default:'https://via.placeholder.com/150' }}" alt="User" class="rounded-full w-[25px]">
-            <div class="bg-gray-100 dark:bg-gray-700 p-3 rounded-lg w-full">
+            <div class="bg-gray-100 dark:bg-gray-800 p-3 rounded-lg w-full">
                 <div class="flex items-center justify-between mb-2">
                     <h3 class="font-semibold">{{ post.random_comment.user.username }}</h3>
                     <div class="relative">
@@ -21,21 +21,20 @@
                 {% if post.random_comment_reply %}
                     <button onclick="toggleReply('{{ post.random_comment.id }}')" class="text-blue-500 hover:underline mt-2">Show Replies</button>
                 {% endif %}
-                <div class="overflow-hidden transition-max-height duration-300 ease-in-out max-h-0 pt-2" id="reply-container-{{ post.random_comment.id }}">
+                <div class="overflow-hidden transition-max-height duration-300 ease-in-out max-h-0 pt-5" id="reply-container-{{ post.random_comment.id }}">
                     {% if post.random_comment_reply %}
-                        <div class="flex items-center justify-between space-x-4">
-                            <div class="flex items-center space-x-4">
+                        <div class="flex items-start justify-between space-x-4">
+                            <div class="flex items-start space-x-4">
                                 <img src="{{ post.random_comment_reply.user_pic |default:'https://via.placeholder.com/150' }}" alt="User" class="rounded-full w-[20px]">
+                                
+                            
+
+                        
+                            <div class="bg-gray-100 dark:bg-gray-700 p-3 rounded-lg w-full">
                                 <h3 class="font-semibold">{{ post.random_comment_reply.user.username }}</h3>
+                                <p class="text-sm">{{ post.random_comment_reply.content }}</p>
                             </div>
-                            <button class="text-gray-400 hover:text-gray-600">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z" />
-                                </svg>
-                            </button>
                         </div>
-                        <div class="bg-gray-100 dark:bg-gray-700 p-3 rounded-lg w-full">
-                            <p class="text-sm">{{ post.random_comment_reply.content }}</p>
                         </div>
                     {% endif %}
                 </div>
@@ -74,7 +73,7 @@
             <img src="{{ current_profile_picture_url|default:'https://via.placeholder.com/150' }}" alt="User" class="rounded-full flex-shrink-0 w-10 h-10 object-cover">
             <form id="postCommentForm-{{ post.id }}" class="flex-1 ml-3" method="post" action="{% url 'comment_create' post.id %}">
                 {% csrf_token %}
-                <div class="bg-gray-100 dark:bg-gray-900 dark:text-gray-200 rounded-full flex items-center relative">
+                <div class="bg-gray-100 dark:bg-gray-950 dark:text-gray-200 rounded-full flex items-center relative">
                     <input type="text" name="content" class="w-full py-2 px-4 bg-transparent focus:outline-none pr-20" placeholder="Add a comment..." id="newComment-{{ post.id }}">
                     <input type="hidden" name="parent_id" id="parentComment-{{ post.id }}" value="">
                     <button class="absolute right-0 flex items-center justify-center w-10 h-10 rounded-full bg-blue-600 text-white hover:bg-blue-700 transition-colors duration-200" type="submit">
