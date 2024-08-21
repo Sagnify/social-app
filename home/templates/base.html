@@ -135,20 +135,29 @@
   
 <!-- Settings Modal -->
 <div id="settingsModal" class="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center z-50 hidden">
-  <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg">
-      <h2 class="text-lg font-semibold mb-4">Settings</h2>
-      <div class="mb-4">
-          <label for="themeSwitch" class="flex items-center cursor-pointer">
-              <span class="mr-2">Theme:</span>
-              <select id="themeSwitch" class="bg-gray-200 dark:bg-gray-700 rounded p-2">
-                  <option value="light">Light</option>
-                  <option value="dark">Dark</option>
-              </select>
-          </label>
-      </div>
-      <button id="closeSettings" class="mt-4 bg-blue-500 text-white py-2 px-4 rounded">Close</button>
+  <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg w-full max-w-sm md:max-w-md">
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="text-lg font-semibold">Settings</h2>
+      <button id="closeSettings" class="text-gray-600 dark:text-gray-300">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+    <div class="mb-4">
+      <label for="themeSwitch" class="flex items-center cursor-pointer">
+        <span class="mr-2">Theme:</span>
+        <select id="themeSwitch" class="bg-gray-200 dark:bg-gray-700 rounded p-2">
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </label>
+    </div>
+    <button id="logoutButton" onclick="location.href=`{% url 'logout' %}`" class="bg-red-500 text-white py-2 px-4 rounded w-full mt-2">Logout</button>
+
   </div>
 </div>
+
 
   
   <script>

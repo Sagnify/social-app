@@ -94,13 +94,17 @@
             </button>
             
             <div class="px-4 py-5 sm:px-6">
-                <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-gray-200">Select a user to start a chat</h3>
+                <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-gray-200">Say Hi!</h3>
                 <!-- Search bar -->
                 <div class="mt-4">
                     <input type="text" id="user-search" placeholder="Search users..." 
                     class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                 </div>
+                <span style="font-size: 0.7rem; line-height: 1.2; display: block; text-align: center; margin-top: 4px;">
+                    You can only search and chat with those people who follow you and whom you follow. Happy Chatting 😄!!!
+                </span>
             </div>
+            
             <div class="custom-scrollbar flex-grow overflow-y-auto px-4 py-2">
                 <!-- List of users to select -->
                 <ul class="divide-y divide-gray-200" id="followed-users-list">
@@ -128,6 +132,8 @@
 .animate-pulse {
     animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
+
+
 </style>
 
 {% endblock %}
