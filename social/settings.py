@@ -28,7 +28,7 @@ SECRET_KEY = 'django-insecure-avufr#lmhc*%wof2(=g1)ss9w_(ubke%$q9pnfn+azkmxwv+k!
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1','.vercel.app']  # Replace with your IP
+ALLOWED_HOSTS = ['127.0.0.1','social-app-tau-nine.vercel.app/']  # Replace with your IP
 
 
 # Application definition
@@ -142,11 +142,8 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
-STATIC_URL = 'static/'
-
-STATICFILES_DIRS = [
-    BASE_DIR / 'static',
-]
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 
 
