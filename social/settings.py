@@ -28,7 +28,7 @@ SECRET_KEY = 'django-insecure-avufr#lmhc*%wof2(=g1)ss9w_(ubke%$q9pnfn+azkmxwv+k!
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['.vercel.app']  # Replace with your IP
+ALLOWED_HOSTS = ['127.0.0.1','.vercel.app']  # Replace with your IP
 
 
 # Application definition
@@ -93,7 +93,14 @@ WSGI_APPLICATION = 'social.wsgi.application'
 # }
 
 DATABASES = {
-    'default': dj_database_url.config(default=os.getenv('postgresql://postgres:LrXCLSbGeElATNCuRBWbzGhlVlmfNiwN@junction.proxy.rlwy.net:13076/railway'))
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'railway',
+        'USER': 'postgres',
+        'PASSWORD': 'LrXCLSbGeElATNCuRBWbzGhlVlmfNiwN',
+        'HOST': 'junction.proxy.rlwy.net',
+        'PORT': '13076',
+    }
 }
 
 
